@@ -1,0 +1,56 @@
+import threading
+
+# Define a single mutex to control access to the file
+file_lock = threading.Lock()
+
+def reader(num, filename):
+    # Acquire the lock before reading from the file
+    with file_lock:
+        print(f"Reader {num} Acquire the lock")
+        print(f"Reader {num} is reading data from {filename}")
+        with open(filename, 'r') as file:
+            data = file.read()
+        print(f"Reader {num} read data: {data.strip()}")
+        print(f"Reader {num} finished reading\n")
+        print(f"Reader {num} release the lock\n")
+        print("******\n")
+        
+        
+
+def writer(num, filename):
+    # Acquire the lock before writing to the file
+    with file_lock:
+        print(f"Writer {num} Acquire the lock")
+        print(f"Writer {num} is writing data to {filename}")
+        with open(filename, 'a') as file:
+            file.write(f"\nData written by writer {num}. Hello there, this is writer {num}.\n")
+        print(f"Writer {num} finished writing\n")
+        print(f"Writer {num} release the lock\n")
+
+def main():
+    filename = "sample.txt"
+    reader_threads = []
+    writer_threads = []
+
+    # Ensure file exists and is initially empty
+    open(filename, 'w').close()
+
+    # Create writer threads
+    for i in range(4):  # Using 4 writer threads
+        writer_threads.append(threading.Thread(target=writer, args=(i, filename)))
+
+    # Create reader threads
+    for i in range(4):  # Using 4 reader threads
+        reader_threads.append(threading.Thread(target=reader, args=(i, filename)))
+
+    # Start and join threads in an organized sequence
+    for writer_thread in writer_threads:
+        writer_thread.start()
+        writer_thread.join()
+
+    for reader_thread in reader_threads:
+        reader_thread.start()
+        reader_thread.join()
+
+if __name__ == "__main__":
+    main()
