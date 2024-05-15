@@ -1,61 +1,50 @@
-// C++ program to demonstrate
-// FCFS Disk Scheduling algorithm
-
-#include <bits/stdc++.h>
+#include <iostream>
 using namespace std;
-
-void FCFS(int *arr, int head , int n)
-{
-	int seek_count = 0;
-	int distance, cur_track ,HEAD = head;
-
-	for (int i = 0; i < n; i++) 
-    {
-		cur_track = arr[i];
-
-		// calculate absolute distance
-        // calculating the difference for the head movement
-		distance = abs(cur_track - head);
-
-		// increase the total count
-		seek_count += distance;
-
-		// accessed track is now new head
-		head = cur_track;
-	}
-
-	cout << "Total number of seek operations = "
-		<< seek_count << endl<<endl;
-
-	// Seek sequence would be the same
-	// as request array sequence
-	cout << "Seek Sequence of tracks is " << endl;
-    cout<<HEAD;  
-	for (int i = 0; i < n; i++) {
-		cout <<" -> "<< arr[i];
-	}
-}
-
 
 int main()
 {
-    int n;
-    cout<<"\nEnter number of requests : ";
-    cin>>n;
-    cout<<"\nEnter the requests:\n";
-	// request array
-	int *arr;
-    arr = new int[n];
-    for (int i = 0; i < n ; i++)
+    int no_of_processes;
+    int total_waiting_time = 0, total_turn_around_time = 0;
+    float average_waiting_time, average_turn_around_time;
+    int current_time = 0;
+
+    cout << "Enter the number of processes: ";
+    cin >> no_of_processes;
+
+    int arrival_time[no_of_processes], burst_time[no_of_processes];
+    int completion_time[no_of_processes], turn_around_time[no_of_processes], waiting_time[no_of_processes];
+
+    for (int i = 0; i < no_of_processes; i++)
     {
-       cin>>arr[i];
+        cout << "Enter the arrival time and burst time of process " << i + 1 << ": ";
+        cin >> arrival_time[i] >> burst_time[i];
     }
 
-	int head;
-    cout<<"\nEnter the head position\n";
-    cin>>head;
-    cout<<endl;
-	FCFS(arr, head , n);
+    for (int i = 0; i < no_of_processes; i++)
+    {
+        if (current_time < arrival_time[i])
+        {
+            current_time = arrival_time[i];
+        }
+        current_time += burst_time[i];
+        completion_time[i] = current_time;
+        turn_around_time[i] = completion_time[i] - arrival_time[i];
+        waiting_time[i] = turn_around_time[i] - burst_time[i];
+        total_waiting_time += waiting_time[i];
+        total_turn_around_time += turn_around_time[i];
+    }
 
-	return 0;
+    average_waiting_time = (float)total_waiting_time / no_of_processes;
+    average_turn_around_time = (float)total_turn_around_time / no_of_processes;
+
+    cout << "Process\tArrival Time\tBurst Time\tCompletion Time\tTurn Around Time\tWaiting Time\n";
+    for (int i = 0; i < no_of_processes; i++)
+    {
+        cout << i + 1 << "\t\t" << arrival_time[i] << "\t\t" << burst_time[i] << "\t\t" << completion_time[i] << "\t\t" << turn_around_time[i] << "\t\t" << waiting_time[i] << "\n";
+    }
+
+    cout << "Average Waiting Time: " << average_waiting_time << "\n";
+    cout << "Average Turn Around Time: " << average_turn_around_time << "\n";
+
+    return 0;
 }
